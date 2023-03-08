@@ -1,0 +1,60 @@
+pipeline:
+  restore_cache:
+    image: appleboy/drone-sftp-cache
+    server: 172.31.205.72
+    port: 22
+    username: root
+    secrets: [ sftp_cache_password ]
+    path: /data/tmp/cache/drone
+    restore: true
+    ignore_branch: true
+    mount:
+      - .m2/repository
+
+  bd_compile:
+    image: artifacts.iflytek.com/cbg-docker-private/xfyun_webdev/maven:3.6-jdk-8-alpine-1.1
+    commands:
+      - mvn clean install  -Dmaven.test.skip=true
+    when:
+      branch:
+        include: [ci_bd]
+      event: [push]
+
+  rebuild_cache:
+    image: appleboy/drone-sftp-cache
+    server: 172.31.205.72
+    port: 22
+    username: root
+    secrets: [ sftp_cache_password ]
+    path: /data/tmp/cache/drone
+    rebuild: true
+    ignore_branch: true
+    mount:
+      - .m2/repository
+
+  bd_image:
+    image: plugins/docker
+    dockerfile: Dockerfile
+    registry: artifacts.iflytek.com
+    repo: artifacts.iflytek.com/cbg-docker-private/xfyun_test/myGPT-junzhang27
+    tags: ${DRONE_COMMIT_SHA:0:8}
+    secrets: [ docker_username, docker_password ]
+    build_args:
+      - SPRING_PROFILE=dev
+    when:
+      branch: ci_bd
+
+
+  ci_k8s_deploy:
+    image: quay.io/honestbee/drone-kubernetes
+    kubernetes_server: https://172.31.77.240:6443
+    kubernetes_token: eyJhbGciOiJSUzI1NiIsImtpZCI6IkNnYzRPVEV5TlRVM0VnWm5hWFJvZFdJIn0.eyJpc3MiOiJodHRwczovL2dlbmVzaXMuaWtlLnN2Yy5oZmIuaXBhYXMuY246OTUzMCIsInN1YiI6IkNnYzRPVEV5TlRVM0VnWm5hWFJvZFdJIiwiYXVkIjoiZXhhbXBsZS1hcHAiLCJleHAiOjIyOTE4NzM0MDEsImlhdCI6MTY2MTE1MzQwMSwiZW1haWwiOiJndWl6aGVuZ0BpZmx5dGVrLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJncm91cHMiOlsiZGV2Il0sIm5hbWUiOiJndWl6aGVuZyJ9.MT1ORpVjFzSqp9eEm330xKl6o1MHVApOdRjC1hsArdEGDwL8zximw3RFxvZ6Isv_s1u8q--3y_FbQ6c2TYJp5rSaSTpDo7BQrleR6oiyUvAEYzZ9OVCo9ouZj9YxSnNbjt-7HUTHJY5aGb0527b5DvUI5uHJxHueTohxaN29GsBwZXb22VFgb6IU_gxhuSk4rzoCwoBq2QCTuIvMjoxnM6ILuBWXFl7RtuV8Sd38sYASROOCAFIHc-SFT3T6aV6RNzwhCPBe6ylvcy_uPcE0q4iyCit2TXGIVKBDZuSkjmoa6AvjC1Ymmkte9IajjK2KtYdX3CIu58EkiCES_HqiLQ
+    namespace: 339-console
+    deployment: myGPT-junzhang27
+    repo: artifacts.iflytek.com/cbg-docker-private/xfyun_test/myGPT-junzhang27
+    container: open-inc
+    tag: ${DRONE_COMMIT_SHA:0:8}
+    when:
+      branch: ci_bd
+
+branches: [ ci*, refs/tags/*]
