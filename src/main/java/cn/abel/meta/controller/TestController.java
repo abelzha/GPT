@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("test")
 public class TestController {
+    /**
+     * 开源测试
+     * @return
+     */
 
     @GetMapping("test")
     public ResponseMsg test() {
