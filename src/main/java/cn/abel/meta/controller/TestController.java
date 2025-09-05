@@ -18,4 +18,14 @@ public class TestController {
     public ResponseMsg test() {
         return ResponseMsg.ok();
     }
+
+
+    /**9eb95962bc0664eb0ba01f5476a8ce1c7860ef2b
+     * 开源测试1
+     * @return
+     */
+    @GetMapping("test1")
+    public ResponseMsg test1() {
+        return ResponseMsg.ok();
+    }
 }
