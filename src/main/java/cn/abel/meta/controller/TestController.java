@@ -28,4 +28,14 @@ public class TestController {
     public ResponseMsg test1() {
         return ResponseMsg.ok();
     }
+
+
+    /**
+     * github-001
+     * @return
+     */
+    @GetMapping("github-001")
+    public ResponseMsg github() {
+        return ResponseMsg.ok();
+    }
 }
