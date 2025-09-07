@@ -13,7 +13,7 @@ public class ClientUtils {
     public static OpenAiClient openAiClient;
 
     public static OpenAiStreamClient aiStreamClient;
-    private static final String KEY = "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";
+    private static final String KEY = "sk-**********************";
 
     static {
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 7890));
